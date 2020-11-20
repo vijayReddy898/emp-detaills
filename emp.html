@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script>
+         $(document).ready(function() {
+         	let employees = [{
+         			name: "Employee One",
+         			age: 40,
+         			email: "one@gmail.com",
+         			departments: ["Computer", "Physics"],
+         		},
+         		{
+         			name: "Employee Two",
+         			age: 10,
+         			email: "Two@gmail.com",
+         			departments: ["Computer"],
+         		},
+         		{
+         			name: "Employee Three",
+         			age: 10,
+         			email: "Three@gmail.com",
+         			departments: ["Physics", "Chemistry"],
+         		},
+         		{
+         			name: "Employee Four",
+         			age: 60,
+         			email: "Four@gmail.com",
+         			departments: ["Chemistry", "Physics"],
+         		},
+         		{
+         			name: "Employee Five",
+         			age: 70,
+         			email: "Five@gmail.com",
+         			departments: ["Computer", "Physics", "Chemistry"],
+         		},
+         		{
+         			name: "Employee Six",
+         			age: 70,
+         			email: "Six@gmail.com",
+         			departments: ["Computer", "Physics"],
+         		},
+         	];
+         
+         	var html = "<table><thead>";
+         	html += "<tr>";
+         	<!-- html += "<th>First name</th>"; -->
+         	<!-- html += "<th>Age</th>"; -->
+         	<!-- html += "<th>Email Address</th>"; -->
+         	<!-- html += "<th>Departments</th>"; -->
+         	html += "</tr>";
+         	html += "</thead>"
+         	html += "<tbody id='empData'>";
+         
+         	for (var i = 0; i < employees.length; i++) {
+         		html += "<tr>";
+         		html += "<td>" + employees[i].name + "</td>";
+         		html += "<td>" + employees[i].age + "</td>";
+         		html += "<td>" + employees[i].email + "</td>";
+         		html += "<td>" + employees[i].departments + "</td>";
+         		html += "</tr>";
+         	}
+         	html += "</tbody>";
+         	html += "</table>";
+         	$("#tableData").html(html);
+         	$("#totalCount").html(employees.length);
+         	$.each(employees, function(key, value) {   
+         	 $('#selectFilter')
+         		 .append($("<option id='selectOption'></option>")
+         					.attr("value", value.departments)
+         					.text(value.departments)); 
+         		});
+         
+         	/* $("#searchInput").on("keyup", function() {
+         		var value = $(this).val().toLowerCase();
+         		$("#empData tr").filter(function() {
+         			$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+         		});
+         	}); */
+         	
+         	$("#searchData").on("click", function() {
+         		var value = $("#searchInput").val().toLowerCase();
+         		$("#empData tr").filter(function() {
+         			$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+         		});
+         	});
+         	
+         	$("#reset").on("click", function() {
+         			$("#tableData").html(html);
+         	})
+         	
+         
+         
+         $('select').change(function() {
+         	var value = $(this).val().toLowerCase();
+         	if(value == 'all') {
+         	$("#tableData").html(html);
+         	} else {
+         					$("#empData tr").filter(function() {
+         		$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+         	});
+         	}
+         });
+         
+		 //sort by
+		 var filterActive;
+
+function filterCategory(category) {
+    if (filterActive != category) {
+        
+        // reset results list
+        $('.filter-cat-results .cat').removeClass('active');
+        
+        // elements to be filtered
+        $('.filter-cat-results .cat')
+            .filter('[data-cat="' + category + '"]')
+            .addClass('active');
+        
+        // reset active filter
+        filterActive = category;
+    }
+}
+
+$('.cat').addClass('active');
+
+$('.filtering select').change(function() {
+    if ($(this).val() == 'cat-all') {
+        $('.filter-cat-results .cat').addClass('active');
+        filterActive = 'cat-all';
+    } else {
+        filterCategory($(this).val());
+    }
+});
+
+
+         // sorting start 
+         function sortTable(column, type) {
+         
+         var order = $('#tableData thead tr>th:eq(' + column + ')').data('order');
+         order = order === 'ASC' ? 'DESC' : 'ASC';
+         $('#tableData thead tr>th:eq(' + column + ')').data('order', order);
+         
+         
+         $('#tableData tbody tr').sort(function(a, b) {
+         
+         a = $(a).find('td:eq(' + column + ')').text();
+         b = $(b).find('td:eq(' + column + ')').text();
+         
+         switch (type) {
+         case 'text':
+         
+         return order === 'ASC' ? a.localeCompare(b) : b.localeCompare(a);
+         break;
+         case 'number':
+         
+         return order === 'ASC' ? a - b : b - a;
+         break;
+         case 'date':
+         var dateFormat = function(dt) {
+          [m, d, y] = dt.split('/');
+          return [y, m - 1, d];
+         }
+         
+         
+         a = new Date(...dateFormat(a));
+         b = new Date(...dateFormat(b));
+         
+               return order === 'ASC' ? a.getTime() - b.getTime() : b.getTime() - a.getTime();
+         break;
+         }
+         
+         }).appendTo('.table tbody');
+         }
+         
+         $('#sortFilter').change(function() {
+         var value = $(this).val().toLowerCase();
+         if(value == 'all') {
+         $("#tableData").html(html);
+         } else {
+         sortTable(3, 'text');
+         }
+         });
+         
+         });
+           
+      </script>
+      <style>
+         table {
+         font-family: arial, sans-serif;
+         border-collapse: collapse;
+         width: 100%;
+         }
+         td, th {
+         border: 1px solid #dddddd;
+         text-align: left;
+         padding: 8px;
+         }
+         tr:nth-child(even) {
+         background-color: #dddddd;
+         }
+      </style>
+   </head>
+   <body>
+      <h1>Employee Details (<span id="totalCount"></span>)</h1>
+      <hr>
+      </hr>
+      <select id="selectFilter" class="filter" >
+         <option value="all">Department</option>
+      </select>
+      <input id="searchInput" type="text" placeholder="Name/Email">
+      <button id="searchData">search</button>	  
+	  <button id="reset">Reset and Reload data</button>
+	  <div class="container filtering">
+		<div class="filter-cat row">
+      <select style="float: right;" id="sortFilter" class="form-control" >
+         <option value="cat-all" selected>sort by</option>
+         <option value="cat-First name" >First name</option>
+         <option value="cat-Age" >Age</option>
+         <option value="cat-Email Address" >Email Address</option>
+         <option value="cat-Departments" >Departments</option>
+	  </select>
+	  </div>
+	  </div>
+      <br><br>
+      <hr>
+      </hr>
+      <div id="tableData"></div>
+   </body>
+</html>
